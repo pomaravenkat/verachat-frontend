@@ -87,7 +87,7 @@ export default function PostCard({ post, currentUserId, onDelete, onLikeToggle }
             <div className="post-stats">
                 {post.like_count > 0 && (
                     <span className="stat-likes">
-                        ❤️ {post.like_count} {post.like_count === 1 ? 'like' : 'likes'}
+                        ❤️ {post.like_count} {post.like_count === 1 ? 'Loved' : 'Loved'}
                     </span>
                 )}
                 {post.comment_count > 0 && (
