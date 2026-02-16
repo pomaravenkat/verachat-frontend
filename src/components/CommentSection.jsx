@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchComments, addComment, deleteComment } from '../api';
+import { fetchComments, addComment, deleteComment, updateComment } from '../api';
 
 export default function CommentSection({ postId, currentUserId, isPostOwner }) {
     const [comments, setComments] = useState([]);
@@ -84,6 +84,30 @@ export default function CommentSection({ postId, currentUserId, isPostOwner }) {
         const canDelete = isAuthor || isPostOwner;
         const replies = comments.filter((c) => c.parent_id === comment.id);
 
+        const [isEditing, setIsEditing] = useState(false);
+        const [editContent, setEditContent] = useState(comment.content);
+        const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+        async function handleSaveEdit() {
+            if (!editContent.trim()) return;
+            setIsSavingEdit(true);
+            try {
+                // Determine if this is a new function we need to import or if we pass it down
+                // For now, assuming we imported updateComment at top of file
+                const { updateComment } = await import('../api'); // dynamic import or just use if already imported. 
+                // Better: import at top. I will assume it's imported at top for this block replacement.
+
+                await updateComment(comment.id, editContent);
+                setComments((prev) => prev.map((c) => c.id === comment.id ? { ...c, content: editContent } : c));
+                setIsEditing(false);
+            } catch (err) {
+                console.error(err);
+                alert('Failed to update comment');
+            } finally {
+                setIsSavingEdit(false);
+            }
+        }
+
         return (
             <div className={`comment-container depth-${depth}`}>
                 <div className="comment-item">
@@ -96,7 +120,38 @@ export default function CommentSection({ postId, currentUserId, isPostOwner }) {
                                 <span className="comment-author">{comment.author}</span>
                                 <span className="comment-time">{timeAgo(comment.created_at)}</span>
                             </div>
-                            <p className="comment-text">{comment.content}</p>
+
+                            {isEditing ? (
+                                <div className="comment-edit-form">
+                                    <input
+                                        type="text"
+                                        className="comment-edit-input"
+                                        value={editContent}
+                                        onChange={(e) => setEditContent(e.target.value)}
+                                        autoFocus
+                                    />
+                                    <div className="comment-edit-actions">
+                                        <button
+                                            className="btn-link-save"
+                                            onClick={handleSaveEdit}
+                                            disabled={isSavingEdit}
+                                        >
+                                            Save
+                                        </button>
+                                        <button
+                                            className="btn-link-cancel"
+                                            onClick={() => {
+                                                setIsEditing(false);
+                                                setEditContent(comment.content);
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="comment-text">{comment.content}</p>
+                            )}
                         </div>
                         <div className="comment-actions">
                             <button
@@ -105,7 +160,15 @@ export default function CommentSection({ postId, currentUserId, isPostOwner }) {
                             >
                                 Reply
                             </button>
-                            {canDelete && (
+                            {isAuthor && !isEditing && (
+                                <button
+                                    className="btn-edit-comment"
+                                    onClick={() => setIsEditing(true)}
+                                >
+                                    Edit
+                                </button>
+                            )}
+                            {canDelete && !isEditing && (
                                 <button
                                     className="btn-delete-comment-text"
                                     onClick={() => handleDelete(comment.id)}

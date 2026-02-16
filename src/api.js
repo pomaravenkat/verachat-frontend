@@ -96,6 +96,13 @@ export async function deleteComment(commentId) {
     return request(`/api/comments/${commentId}`, { method: 'DELETE' });
 }
 
+export async function updateComment(commentId, content) {
+    return request(`/api/comments/${commentId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ content }),
+    });
+}
+
 // ---- Profile ----
 
 export async function fetchProfile() {

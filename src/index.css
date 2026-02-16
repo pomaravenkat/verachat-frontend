@@ -1030,6 +1030,71 @@ a:hover {
     color: var(--text-primary);
 }
 
+.comment-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.comment-edit-input {
+    width: 100%;
+    padding: 6px 10px;
+    font-family: var(--font-family);
+    font-size: 0.8125rem;
+    border: 1px solid var(--accent-primary);
+    border-radius: var(--radius-sm);
+    outline: none;
+    background: #fff;
+}
+
+.comment-edit-actions {
+    display: flex;
+    gap: 8px;
+    font-size: 0.75rem;
+}
+
+.btn-link-save,
+.btn-link-cancel {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-link-save {
+    color: var(--accent-primary);
+}
+
+.btn-link-cancel {
+    color: var(--text-tertiary);
+}
+
+.btn-link-save:hover {
+    text-decoration: underline;
+}
+
+.btn-link-cancel:hover {
+    color: var(--text-secondary);
+    text-decoration: underline;
+}
+
+.btn-edit-comment {
+    background: none;
+    border: none;
+    padding: 0;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.8125rem;
+    margin-right: 8px;
+}
+
+.btn-edit-comment:hover {
+    color: var(--text-link);
+    text-decoration: underline;
+}
+
 .comment-form {
     display: flex;
     gap: 8px;
