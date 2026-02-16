@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { toggleLike, deletePost, updatePost } from '../api';
 import CommentSection from './CommentSection';
 
@@ -11,6 +11,11 @@ export default function PostCard({ post, currentUserId, onDelete, onLikeToggle }
     const [liking, setLiking] = useState(false);
     const [saving, setSaving] = useState(false);
 
+    // Image upload state
+    const fileInputRef = useRef(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
+
     // Local state for optimistic updates
     const [currentContent, setCurrentContent] = useState(post.content);
     const [currentImageUrl, setCurrentImageUrl] = useState(post.image_url);
@@ -18,6 +23,7 @@ export default function PostCard({ post, currentUserId, onDelete, onLikeToggle }
     const isOwner = post.user_id === currentUserId;
 
     function timeAgo(dateStr) {
+        // ... (keep existing timeAgo logic, implicitly included if not replaced)
         const now = new Date();
         const date = new Date(dateStr);
         const seconds = Math.floor((now - date) / 1000);
@@ -57,13 +63,43 @@ export default function PostCard({ post, currentUserId, onDelete, onLikeToggle }
         }
     }
 
+    function handleFileChange(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size exceeds 5MB limit');
+            return;
+        }
+
+        setSelectedFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+        setRemoveImage(false); // Reset remove flag if new image selected
+    }
+
     async function handleSaveEdit() {
         setSaving(true);
         try {
-            await updatePost(post.id, editContent, removeImage);
+            await updatePost(post.id, editContent, removeImage, selectedFile);
+
+            // Optimistic update
             setCurrentContent(editContent);
-            if (removeImage) setCurrentImageUrl(null);
+            if (removeImage) {
+                setCurrentImageUrl(null);
+            } else if (previewUrl) {
+                // We can't know the real URL immediately without refetching or returning it from backend
+                // But for now, showing the blob URL is a decent optimistic update, 
+                // though it won't persist on reload until we fetch or get response.
+                // ideally backend returns the new post object.
+                // Let's assume for now we might need to refresh or just accept the blob
+                setCurrentImageUrl(previewUrl);
+            }
+
             setIsEditing(false);
+            // Cleanup checks
+            if (previewUrl && !currentImageUrl) {
+                // If we had a blob, keep it until refresh or maybe replace with real url if we parsed response
+            }
         } catch (err) {
             alert('Failed to update post');
             console.error(err);
@@ -76,6 +112,8 @@ export default function PostCard({ post, currentUserId, onDelete, onLikeToggle }
         setIsEditing(false);
         setEditContent(currentContent || '');
         setRemoveImage(false);
+        setSelectedFile(null);
+        setPreviewUrl(null);
     }
 
     return (
@@ -126,19 +164,46 @@ export default function PostCard({ post, currentUserId, onDelete, onLikeToggle }
                             onChange={(e) => setEditContent(e.target.value)}
                             rows={3}
                         />
-                        {currentImageUrl && !removeImage && (
+
+                        {/* Image Preview Area */}
+                        {(previewUrl || (currentImageUrl && !removeImage)) && (
                             <div className="edit-image-preview">
-                                <img src={currentImageUrl} alt="Post" />
+                                <img src={previewUrl || currentImageUrl} alt="Post" />
                                 <button
                                     type="button"
                                     className="btn-remove-image"
-                                    onClick={() => setRemoveImage(true)}
+                                    onClick={() => {
+                                        setRemoveImage(true);
+                                        setSelectedFile(null);
+                                        setPreviewUrl(null);
+                                    }}
+                                    title="Remove Image"
                                 >
-                                    Remove Image
+                                    ✕
                                 </button>
                             </div>
                         )}
-                        {removeImage && <div className="image-removed-msg">Image will be removed</div>}
+
+                        {removeImage && !previewUrl && (
+                            <div className="image-removed-msg">Image will be removed</div>
+                        )}
+
+                        <div className="edit-media-actions">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                            />
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                {currentImageUrl || previewUrl ? 'Change Photo' : 'Add Photo'}
+                            </button>
+                        </div>
+
                         <div className="edit-actions">
                             <button className="btn btn-secondary" onClick={handleCancelEdit} disabled={saving}>Cancel</button>
                             <button className="btn btn-primary" onClick={handleSaveEdit} disabled={saving}>

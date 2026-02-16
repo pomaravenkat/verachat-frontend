@@ -61,10 +61,15 @@ export async function deletePost(postId) {
     return request(`/api/posts/${postId}`, { method: 'DELETE' });
 }
 
-export async function updatePost(postId, content, removeImage) {
+export async function updatePost(postId, content, removeImage, imageFile) {
+    const formData = new FormData();
+    formData.append('content', content);
+    if (removeImage) formData.append('remove_image', 'true');
+    if (imageFile) formData.append('image', imageFile);
+
     return request(`/api/posts/${postId}`, {
         method: 'PUT',
-        body: JSON.stringify({ content, remove_image: removeImage }),
+        body: formData,
     });
 }
 
