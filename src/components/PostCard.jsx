@@ -262,7 +262,13 @@ export default function PostCard({ post, currentUserId, onDelete, onLikeToggle }
                 </button>
             </div>
 
-            {showComments && <CommentSection postId={post.id} />}
+            {showComments && (
+                <CommentSection
+                    postId={post.id}
+                    currentUserId={currentUserId}
+                    isPostOwner={isOwner}
+                />
+            )}
         </div>
     );
 }

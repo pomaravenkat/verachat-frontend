@@ -92,6 +92,10 @@ export async function addComment(postId, content) {
     });
 }
 
+export async function deleteComment(commentId) {
+    return request(`/api/comments/${commentId}`, { method: 'DELETE' });
+}
+
 // ---- Profile ----
 
 export async function fetchProfile() {

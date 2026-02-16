@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { fetchComments, addComment } from '../api';
+import { fetchComments, addComment, deleteComment } from '../api';
 
-export default function CommentSection({ postId }) {
+export default function CommentSection({ postId, currentUserId, isPostOwner }) {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(true);
@@ -38,6 +38,17 @@ export default function CommentSection({ postId }) {
         }
     }
 
+    async function handleDelete(commentId) {
+        if (!confirm('Delete this comment?')) return;
+        try {
+            await deleteComment(commentId);
+            setComments((prev) => prev.filter((c) => c.id !== commentId));
+        } catch (err) {
+            console.error(err);
+            alert('Failed to delete comment');
+        }
+    }
+
     function timeAgo(dateStr) {
         const now = new Date();
         const date = new Date(dateStr);
@@ -57,20 +68,34 @@ export default function CommentSection({ postId }) {
                 <div className="comments-loading">Loading comments...</div>
             ) : (
                 <div className="comments-list">
-                    {comments.map((comment) => (
-                        <div key={comment.id} className="comment-item">
-                            <div className="comment-avatar">
-                                {comment.author?.charAt(0)?.toUpperCase() || '?'}
-                            </div>
-                            <div className="comment-body">
-                                <div className="comment-meta">
-                                    <span className="comment-author">{comment.author}</span>
-                                    <span className="comment-time">{timeAgo(comment.created_at)}</span>
+                    {comments.map((comment) => {
+                        const isAuthor = comment.user_id === currentUserId;
+                        const canDelete = isAuthor || isPostOwner;
+
+                        return (
+                            <div key={comment.id} className="comment-item">
+                                <div className="comment-avatar">
+                                    {comment.author?.charAt(0)?.toUpperCase() || '?'}
                                 </div>
-                                <p className="comment-text">{comment.content}</p>
+                                <div className="comment-body">
+                                    <div className="comment-meta">
+                                        <span className="comment-author">{comment.author}</span>
+                                        <span className="comment-time">{timeAgo(comment.created_at)}</span>
+                                    </div>
+                                    <p className="comment-text">{comment.content}</p>
+                                </div>
+                                {canDelete && (
+                                    <button
+                                        className="btn-delete-comment"
+                                        onClick={() => handleDelete(comment.id)}
+                                        title="Delete comment"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
 
