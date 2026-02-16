@@ -85,10 +85,10 @@ export async function fetchComments(postId) {
     return request(`/api/posts/${postId}/comments`);
 }
 
-export async function addComment(postId, content) {
+export async function addComment(postId, content, parentId = null) {
     return request(`/api/posts/${postId}/comments`, {
         method: 'POST',
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, parent_id: parentId }),
     });
 }
 
