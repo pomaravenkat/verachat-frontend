@@ -61,6 +61,13 @@ export async function deletePost(postId) {
     return request(`/api/posts/${postId}`, { method: 'DELETE' });
 }
 
+export async function updatePost(postId, content, removeImage) {
+    return request(`/api/posts/${postId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ content, remove_image: removeImage }),
+    });
+}
+
 // ---- Likes ----
 
 export async function toggleLike(postId) {

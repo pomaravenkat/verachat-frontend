@@ -799,6 +799,83 @@ a:hover {
     color: var(--accent-primary);
 }
 
+/* Edit Post Form */
+.post-owner-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.edit-post-form {
+    padding: 12px 20px;
+}
+
+.edit-post-textarea {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-family: var(--font-family);
+    font-size: 0.9375rem;
+    resize: vertical;
+    outline: none;
+    margin-bottom: 12px;
+}
+
+.edit-post-textarea:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+}
+
+.edit-image-preview {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: 12px;
+    max-width: 100%;
+}
+
+.edit-image-preview img {
+    max-height: 200px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.edit-image-preview .btn-remove-image {
+    top: 8px;
+    right: 8px;
+}
+
+.image-removed-msg {
+    color: #dc2626;
+    background: #fef2f2;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    margin-bottom: 12px;
+    display: inline-block;
+}
+
+.edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.edit-actions .btn {
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+}
+
+.edit-actions .btn-secondary {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+}
+
+.edit-actions .btn-secondary:hover {
+    background: var(--border-color);
+}
+
 /* ============================================
    COMMENT SECTION
    ============================================ */
